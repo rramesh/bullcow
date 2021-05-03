@@ -1,0 +1,21 @@
+{
+    "name": "router",
+    "version": "1.0.0",
+    "description": "package for creating workers templates",
+    "main": "src/index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "format": "prettier --write '**/*.{js,css,json,md}'"
+    },
+    "author": "Tobias Schneider",
+    "license": "MIT",
+    "devDependencies": {
+        "prettier": "^1.17.0"
+    },
+    "dependencies": {
+        "@cfworker/uuid": "^1.6.8",
+        "@tsndr/cloudflare-worker-router": "^1.0.1",
+        "random-words": "^1.1.1",
+        "serverless-cloudflare-workers": "^1.2.0"
+    }
+}

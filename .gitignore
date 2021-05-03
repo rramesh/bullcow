@@ -1,0 +1,9 @@
+node_modules/
+worker/
+dist/
+wrangler.toml
+.cargo-ok
+.gradle/
+.prettierrc
+package-lock.json
+.DS_Store
