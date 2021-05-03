@@ -3,7 +3,9 @@
 
 Bull Cow is a word guessing game. The system presents you a four lettered word which you need to guess in one or more attempts. When you guess a word, the system compares the letters in the word you guessed and the actual word. Letters which are in the same position counts as Bull and letters that are present but not in the right position is counted as Cows. When you guess the word right, you have four bulls and you have succeeded in guessing the right word. Word could be plural and may contain repeating letters. You have 30 minutes once you start playing. Your session will become invalid after 30 minutes and you will not be able to know the word as well.
 
-You can try it [here](https://www.rameshrajamani.com/game). The UI is on a separate worker and the actual game is built on a separater worker which is API driven. This repo is the backend worker. The backend API can be accessed with the base url https://bullcow.rameshrajamani.com
+You can play the game [here](https://www.rameshrajamani.com/game). The UI is on a separate worker and the actual game is built on a separater worker which is API driven. 
+
+This repo is the backend worker. The backend API can be accessed with the base url ht<span>tps://</span>bullcow.rameshrajamani.com
 
 
 ## Usage
