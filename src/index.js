@@ -74,7 +74,11 @@ router.post('/guess', async (req, res) => {
                     status: 'OK',
                     message: 'Yay! You got it!',
                     bull: bull,
-                    cow: cow
+                    cow: cow,
+                    dictionary : fetchStatus,
+                    validWord: dictStatus,
+                    partOfSpeech: partOfSpeech,
+                    meaning: meaning                   
                 }
             } else {
                 res.body = {
