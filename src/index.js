@@ -52,30 +52,54 @@ router.post('/guess', async (req, res) => {
         }
         return
     }
-
-    const [err, bull, cow] = bullCow(word, gword)
-    if (err == null) {
-        if(bull == word.length) {
-            await USESSION.delete(suuid)
-            res.body = {
-                status: 'OK',
-                message: 'Yay! You got it!',
-                bull: bull,
-                cow: cow
+    const dict = await(dictionary(gword))
+    var fetchStatus = false
+    var dictStatus = false
+    var partOfSpeech = ""
+    var meaning = ""
+    if(dict != null) {
+        fetchStatus = true
+        if(dict[0] == true) {
+            dictStatus = true
+            partOfSpeech = dict[1]
+            meaning = dict[2]
+        }
+    }
+    if(dict == null || dictStatus == true) {
+        const [err, bull, cow] = bullCow(word, gword)
+        if (err == null) {
+            if(bull == word.length) {
+                await USESSION.delete(suuid)
+                res.body = {
+                    status: 'OK',
+                    message: 'Yay! You got it!',
+                    bull: bull,
+                    cow: cow
+                }
+            } else {
+                res.body = {
+                    status: 'OK',
+                    message: 'Nope, not right, try again!',
+                    bull: bull,
+                    cow: cow,
+                    dictionary : fetchStatus,
+                    validWord: dictStatus,
+                    partOfSpeech: partOfSpeech,
+                    meaning: meaning
+                }
             }
         } else {
+            res.status = 500
             res.body = {
-                status: 'OK',
-                message: 'Nope, not right, try again!',
-                bull: bull,
-                cow: cow
+                status: 'Error',
+                message: 'Something wrong, did you enter the word with right length? Try again'
             }
         }
     } else {
-        res.status = 500
+        res.status = 422
         res.body = {
             status: 'Error',
-            message: 'Something wrong, did you enter the word with right length? Try again'
+            message: 'Not a dictionary word. Please enter a meaningful word',
         }
     }
 })
@@ -94,7 +118,6 @@ router.post('/giveup', async (req, res) => {
     }
 
     const word = await USESSION.get(suuid)
-
     if (word === null) {
         res.status = 400
         res.body = {
@@ -104,10 +127,27 @@ router.post('/giveup', async (req, res) => {
         return
     }
     await USESSION.delete(suuid)
+    const dict = await(dictionary(word))
+    var fetchStatus = false
+    var dictStatus = false
+    var partOfSpeech = ""
+    var meaning = ""
+    if(dict != null) {
+        fetchStatus = true
+        if(dict[0] == true) {
+            dictStatus = true
+            partOfSpeech = dict[1]
+            meaning = dict[2]
+        }
+    }
     res.body = {
         status: 'OK',
         message: 'Sorry you could\'nt figure it.',
-        word: word
+        word: word,
+        dictionary : fetchStatus,
+        validWord: dictStatus,
+        partOfSpeech: partOfSpeech,
+        meaning: meaning
     }
 })
 
@@ -138,3 +178,38 @@ function bullCow(word, guess) {
     }
     return [null, bull, cow]
 }
+
+async function dictionary(word) {
+    const url = "https://api.dictionaryapi.dev/api/v2/entries/en_US/" + word
+    const init = {
+        headers: {},
+    }
+    var result = [true];
+    try {
+        const response = await fetch(url, init)
+        const data = await response.json()
+        const mng = data[0];
+        if (typeof(mng) == "undefined") {
+            const notfound = data.title;
+            if(typeof(notfound) == "undefined") {
+                result = null;
+            } else {
+                result[0] = false
+                result.push("Not a dictionary word. Please enter a meaningful word");
+            }
+        } else {
+            if (typeof(mng.meanings[0]) == "undefined") {
+                result = null
+            } else {
+                result.push(mng.meanings[0].partOfSpeech);
+                result.push(mng.meanings[0].definitions[0].definition);
+            }
+        }
+    } catch (e) {
+        console.log("Error fetching dictionary")
+        console.log(e.stack)
+        result = null
+    }
+    return result
+}
+
