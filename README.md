@@ -22,7 +22,10 @@ curl -H 'Content-Type: application/json' -X POST -d '{}' https://bullcow.rameshr
 
 #### Example Response
 ```
-{"status":"OK","sid":"a8f0cb24-7c98-4edb-9f08-2b3dbf791f98"}
+{
+	"status": "OK",
+	"sid": "a8f0cb24-7c98-4edb-9f08-2b3dbf791f98"
+}
 ```
 
 ### Guess the word
@@ -32,14 +35,14 @@ curl -H 'Content-Type: application/json' -X POST -d '{}' https://bullcow.rameshr
 #### Response details
 A successful `JSON` response contains the following keys.
 
-`status` - Call Status, one of `"OK"` or `"Error"`
-`message` - Description of output
-`bull` - Number of letters that are present and match at exact position(s)
-`cow` - Number of letters that are present but at different position(s)
-`dictionary` - if true indicates that a request to validate the dictionary was successful. If for some reason dictionary is not available for a comparison, this value is false and it matches any invalid word as well.
-`validWord` - true if there is a match in the dicationary for the given word. if `dictionary` is true and word is not found in dictionary, the response is `422` HTTP status, refer example below.
-`partOfSpeech` - Part of Speech like noun, verb, adjective etc.
-`meaning` - One of the meanings from the dictionary
+`status` - Call Status, one of `"OK"` or `"Error"`\
+`message` - Description of output\
+`bull` - Number of letters that are present and match at exact position(s)\
+`cow` - Number of letters that are present but at different position(s)\
+`dictionary` - if true indicates that a request to validate the dictionary was successful. If for some reason dictionary is not available for a comparison, this value is false and it matches any invalid word as well.\
+`validWord` - true if there is a match in the dicationary for the given word. if `dictionary` is true and word is not found in dictionary, the response is `422` HTTP status, refer example below.\
+`partOfSpeech` - Part of Speech like noun, verb, adjective etc.\
+`meaning` - One of the meanings from the dictionary\
 
 #### Example CURL call
 ```
@@ -47,7 +50,16 @@ curl -H 'Content-Type: application/json' -X POST -d '{"sid":"a8f0cb24-7c98-4edb-
 ```
 #### Example response
 ```
-{"status":"OK","message":"Nope, not right, try again!","bull":1,"cow":1, "dictionary":true,"validWord":true,"partOfSpeech":"verb","meaning":"Used with a standard past tense verb to indicate absoluteness or completion."}
+{
+	"status": "OK",
+	"message": "Nope, not right, try again!",
+	"bull": 1,
+	"cow": 1,
+	"dictionary": true,
+	"validWord": true,
+	"partOfSpeech": "verb",
+	"meaning": "Used with a standard past tense verb to indicate absoluteness or completion."
+}
 ```
 
 The above response means that one letter in the word "done" matches at the exact position with the actual word, and one letter is present in the actual word but at a different position.
@@ -55,11 +67,15 @@ The above response means that one letter in the word "done" matches at the exact
 #### Example invalid word call and response
 
 ```
-curl -H 'Content-Type: application/json' -X POST -d '{"sid":"a8f0cb24-7c98-4edb-9f08-2b3dbf791f98", "word":"dood"}' http://localhost:8787/guess
-```
+curl -v -H 'Content-Type: application/json' -X POST -d '{"sid":"a8f0cb24-7c98-4edb-9f08-2b3dbf791f98", "word":"dood"}' http://localhost:8787/guess
+
 HTTP/1.1 422 Unprocessable Entity
 
-{"status":"Error","message":"Not a dictionary word. Please enter a meaningful word"}
+{
+	"status": "Error",
+	"message": "Not a dictionary word. Please enter a meaningful word"
+}
+```
 ### Give up
 
 ```/giveup``` - Give up the game and reveal the actual word the system has thought of. Gives back the meaning from the dictionary for the word.
@@ -72,12 +88,26 @@ curl -H 'Content-Type: application/json' -X POST -d '{"sid":"a8f0cb24-7c98-4edb-
 
 #### Example response
 ```
-{"status":"OK","message":"Sorry you could'nt figure it.","word":"fade","dictionary":true,"validWord":true,"partOfSpeech":"intransitive verb","meaning":"Gradually grow faint and disappear."}
+{
+	"status": "OK",
+	"message": "Sorry you could'nt figure it.",
+	"word": "fade",
+	"dictionary": true,
+	"validWord": true,
+	"partOfSpeech": "intransitive verb",
+	"meaning": "Gradually grow faint and disappear."
+}
 ```
 
-The session is limited to 30 minutes. After 30 minutes it expires and you will not be able to guess or give up and know the word.
+The session is limited to 30 minutes. After 30 minutes it expires and you will not be able to guess or give up and know the word. Both `guess` and `givup` API returns a `422` HTTP Status response with an error message.
 
 ```
-curl -H 'Content-Type: application/json' -X POST -d '{"sid":"a8f0cb24-7c98-4edb-9f08-2b3dbf791f98", "word":"game"}' https://bullcow.rameshrajamani.com/giveup
-{"status":"Error","message":"Error. Either the session is invalid/stale or you did'nt guess the word within 30 minutes"}
+curl -v -H 'Content-Type: application/json' -X POST -d '{"sid":"a8f0cb24-7c98-4edb-9f08-2b3dbf791f98", "word":"game"}' https://bullcow.rameshrajamani.com/giveup
+
+HTTP/1.1 422 Unprocessable Entity
+
+{
+	"status": "Error",
+	"message": "Error. Either the session is invalid/stale or you did'nt guess the word within 30 minutes"
+}
 ```
