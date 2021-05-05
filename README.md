@@ -37,6 +37,7 @@ A successful `JSON` response contains the following keys.
 
 `status` - Call Status, one of `"OK"` or `"Error"`\
 `message` - Description of output\
+`word` - Guessed word\
 `bull` - Number of letters that are present and match at exact position(s)\
 `cow` - Number of letters that are present but at different position(s)\
 `dictionary` - if true indicates that a request to validate the dictionary was successful. If for some reason dictionary is not available for a comparison, this value is false and it matches any invalid word as well.\
@@ -53,6 +54,7 @@ curl -H 'Content-Type: application/json' -X POST -d '{"sid":"a8f0cb24-7c98-4edb-
 {
 	"status": "OK",
 	"message": "Nope, not right, try again!",
+  "word": "done",
 	"bull": 1,
 	"cow": 1,
 	"dictionary": true,

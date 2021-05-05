@@ -73,6 +73,7 @@ router.post('/guess', async (req, res) => {
                 res.body = {
                     status: 'OK',
                     message: 'Yay! You got it!',
+                    word: gword,
                     bull: bull,
                     cow: cow,
                     dictionary : fetchStatus,
@@ -84,6 +85,7 @@ router.post('/guess', async (req, res) => {
                 res.body = {
                     status: 'OK',
                     message: 'Nope, not right, try again!',
+                    word: gword,
                     bull: bull,
                     cow: cow,
                     dictionary : fetchStatus,
