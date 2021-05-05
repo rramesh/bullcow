@@ -54,7 +54,7 @@ curl -H 'Content-Type: application/json' -X POST -d '{"sid":"a8f0cb24-7c98-4edb-
 {
 	"status": "OK",
 	"message": "Nope, not right, try again!",
-  "word": "done",
+	"word": "done",
 	"bull": 1,
 	"cow": 1,
 	"dictionary": true,
