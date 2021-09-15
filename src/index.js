@@ -16,6 +16,7 @@ router.post('/fetch', async (req, res) => {
     }
     const suuid = uuid()
     // Store the random word in KV with expiry as defined in SESSIONTTL
+    // TTL is to ensure we dont have stale KV's lying around forever
     try {
         await USESSION.put(suuid, rword, {expirationTtl: SESSIONTTL})
         res.body = {
