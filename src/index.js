@@ -5,13 +5,17 @@ const router = new Router()
 
 router.cors()
 
+// Pick a new word for the game
 router.post('/fetch', async (req, res) => {
+    // Keep it simple, use only 4 lettered word
     const wantSize = 4
     var rword = ''
+    // Find a random 4 lettered word
     while(rword.length != wantSize) {
         rword = randomWords({exactly: 1, maxLength: 4})[0]
     }
     const suuid = uuid()
+    // Store the random word in KV with expiry as defined in SESSIONTTL
     try {
         await USESSION.put(suuid, rword, {expirationTtl: SESSIONTTL})
         res.body = {
@@ -28,11 +32,12 @@ router.post('/fetch', async (req, res) => {
     }
 })
 
+// Handle user guess
 router.post('/guess', async (req, res) => {
     const content = req.body
     const suuid = content['sid']
     const gword = content['word']
-
+    // Basic sanity check
     if (typeof(suuid) == "undefined" || typeof(gword) == "undefined" || suuid === null || gword === null) {
         res.status = 422
         res.body = {
@@ -41,9 +46,10 @@ router.post('/guess', async (req, res) => {
         }
         return
     }   
-
+    // Get the actual word from KV by uuid for comparison
     const word = await USESSION.get(suuid)
 
+    // Ensure if session has already not expired
     if (typeof(word) == "undefined" || word === null) {
         res.status = 422
         res.body = {
@@ -52,6 +58,7 @@ router.post('/guess', async (req, res) => {
         }
         return
     }
+    // Ensure the guessed word is a valid word and get the first meaning presented
     const dict = await(dictionary(gword))
     var fetchStatus = false
     var dictStatus = false
@@ -65,9 +72,11 @@ router.post('/guess', async (req, res) => {
             meaning = dict[2]
         }
     }
+    // Condition ensures the game can still be played if Dictionary service is not available
     if(dict == null || dictStatus == true) {
         const [err, bull, cow] = bullCow(word, gword)
         if (err == null) {
+            // Yay, the guess is right
             if(bull == word.length) {
                 await USESSION.delete(suuid)
                 res.body = {
@@ -82,6 +91,7 @@ router.post('/guess', async (req, res) => {
                     meaning: meaning                   
                 }
             } else {
+                // Find any matching letters
                 res.body = {
                     status: 'OK',
                     message: 'Nope, not right, try again!',
@@ -95,6 +105,7 @@ router.post('/guess', async (req, res) => {
                 }
             }
         } else {
+            // Oh no, not here
             res.status = 500
             res.body = {
                 status: 'Error',
@@ -102,6 +113,7 @@ router.post('/guess', async (req, res) => {
             }
         }
     } else {
+        // Not a proper word according to the Dictionary
         res.status = 422
         res.body = {
             status: 'Error',
@@ -110,10 +122,11 @@ router.post('/guess', async (req, res) => {
     }
 })
 
+// User gives up, lets reveal the actual word
 router.post('/giveup', async (req, res) => {
     const content = req.body
     const suuid = content['sid']
-    
+    // Basic sanity check
     if (typeof(suuid) == "undefined" || suuid === null) {
         res.status = 422
         res.body = {
@@ -122,9 +135,10 @@ router.post('/giveup', async (req, res) => {
         }
         return
     }
-
+    
     const word = await USESSION.get(suuid)
     if (word === null) {
+        // Well too late, session expired hence no way to retrieve the word
         res.status = 400
         res.body = {
             status: 'Error',
@@ -132,7 +146,9 @@ router.post('/giveup', async (req, res) => {
         }
         return
     }
+    // Clear the KV
     await USESSION.delete(suuid)
+    // Show the meaning of the word as well
     const dict = await(dictionary(word))
     var fetchStatus = false
     var dictStatus = false
@@ -160,8 +176,9 @@ router.post('/giveup', async (req, res) => {
 addEventListener('fetch', event => {
     event.respondWith(router.handle(event))
 })
-
+// Core logic to compare the word guessed with the system selected word
 function bullCow(word, guess) {
+    // Sanity check
     if(word.length == 0 || guess.length == 0) {
         console.log("Error - One of the string is empty")
         return ["One of the string is empty", -1, -1]
@@ -169,6 +186,7 @@ function bullCow(word, guess) {
         console.log("Error - Words are not of equal length")
         return ["Words are not of equal length", -1, -1]
     }
+    // Let the case not cause a problem in comparison, lets lowercase
     word = word.toLowerCase()
     guess = guess.toLowerCase()
     var bull = 0
@@ -185,6 +203,7 @@ function bullCow(word, guess) {
     return [null, bull, cow]
 }
 
+// Fetch meaning of a word from Dictionary API
 async function dictionary(word) {
     const url = "https://api.dictionaryapi.dev/api/v2/entries/en_US/" + word
     const init = {

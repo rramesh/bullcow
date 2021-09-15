@@ -7,7 +7,7 @@ You can play the game [here](https://www.rameshrajamani.com/game). The UI is on 
 
 This repo is the backend worker. The backend API can be accessed with the base url ht<span>tps://</span>bullcow.rameshrajamani.com
 
-Uses [Free Dictionary API](https://github.com/meetDeveloper/freeDictionaryAPI) for validation of words.
+The code uses [Free Dictionary API](https://github.com/meetDeveloper/freeDictionaryAPI) for validation of words. It uses [Cloudflare KV](https://developers.cloudflare.com/workers/learning/how-kv-works) to store the random word selected and compare when a user makes a guess. A key (random uuid) and value (random word) is used for every user session with an expiry of 30 minutes.
 
 ## Usage
 
